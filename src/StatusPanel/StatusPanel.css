@@ -1,0 +1,33 @@
+.status-panel {
+    border-radius: 10px;
+    color: white;
+    width: fit-content;
+    font-family: Arial, sans-serif;
+    position: absolute;
+    top: 20px; /* Размещаем в правом верхнем углу */
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.status-item {
+    font-size: 14px;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+}
+
+.status-item:first-child {
+    margin-top: 0;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-label {
+    font-weight: lighter; /* Делаем метки более заметными */
+    color: rgba(255, 255, 255, 0.5); /* Легкая прозрачность для меток */
+    margin-right: 8px; /* Отступ между меткой и значением */
+}

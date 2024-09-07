@@ -10,3 +10,11 @@
     width: 100vw;
     height: 100vh;
 }
+
+.menu-panel {
+    background-color: rgba(30, 41, 59, 0.6);
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(3px);
+}

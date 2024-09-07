@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { SimpleViewer, type SimpleViewerOptions, defaultOptions } from 'threedviewer';
+import StatusPanel from './StatusPanel/StatusPanel.tsx';
 import useTides from './Tides/useTides';
 import GameToolsMenu from './GameToolsMenu'; // Подключаем меню инструментов
 
@@ -18,6 +19,10 @@ const App: React.FC = () => {
   const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
   const [selectedTool, setSelectedTool] = useState<string>('house'); // Текущий инструмент
+
+  const resources = 150;
+  const money = 1000;
+  const sciencePoints = 75;
 
   useEffect(() => {
     if (cameraRef.current) {
@@ -72,6 +77,8 @@ const App: React.FC = () => {
   return (
     <div className="app-wrapper">
       <GameToolsMenu selectedTool={selectedTool} onSelectTool={handleToolSelect} /> {/* Меню инструментов */}
+      <StatusPanel resources={resources} money={money} sciencePoints={sciencePoints} /> {/* Панель статуса */}
+
       <div className="viewer-container"> {/* Контейнер для SimpleViewer */}
         <SimpleViewer object={null} options={options} />
       </div>

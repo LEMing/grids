@@ -28,7 +28,7 @@ const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectToo
   }, []);
 
   return (
-    <div className={`game-tools-menu ${isVisible ? 'show' : ''}`}> {/* Добавляем класс для анимации */}
+    <div className={`game-tools-menu menu-panel ${isVisible ? 'show' : ''}`}> {/* Добавляем класс для анимации */}
       <div className="tool-section">
         <h4 className="menu-title">Build</h4>
         <div className="tool-icons">
