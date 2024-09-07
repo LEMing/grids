@@ -1,14 +1,14 @@
-import React, {useEffect, useMemo, useRef, useState} from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { SimpleViewer, type SimpleViewerOptions, defaultOptions } from 'threedviewer';
 import useTides from './Tides/useTides';
+import GameToolsMenu from './GameToolsMenu'; // Подключаем меню инструментов
 
-import './App.css'
+import './App.css'; // Можно добавить свой стиль для всей страницы
 
 const App: React.FC = () => {
-
   const mountRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -17,6 +17,7 @@ const App: React.FC = () => {
 
   const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
+  const [selectedTool, setSelectedTool] = useState<string>('house'); // Текущий инструмент
 
   useEffect(() => {
     if (cameraRef.current) {
@@ -47,7 +48,7 @@ const App: React.FC = () => {
       },
       lights: {
         ambient: { intensity: 0.5 },
-        directional: { position: [10, 10, 5] }
+        directional: { position: [10, 10, 5] },
       },
       threeBaseRefs: {
         scene: sceneRef,
@@ -55,15 +56,25 @@ const App: React.FC = () => {
         mountPoint: mountRef,
         controls: controlsRef,
         renderer: rendererRef,
-      }
-    }
+      },
+    };
   }, []);
 
+  // Логика для управления плитками (Tides)
   useTides(camera, scene);
+
+  // Функция выбора инструмента
+  const handleToolSelect = (tool: string) => {
+    setSelectedTool(tool);
+    console.log(`Selected tool: ${tool}`);
+  };
 
   return (
     <div className="app-wrapper">
-      <SimpleViewer object={null} options={options} />
+      <GameToolsMenu selectedTool={selectedTool} onSelectTool={handleToolSelect} /> {/* Меню инструментов */}
+      <div className="viewer-container"> {/* Контейнер для SimpleViewer */}
+        <SimpleViewer object={null} options={options} />
+      </div>
     </div>
   );
 };
