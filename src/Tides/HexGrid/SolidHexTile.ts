@@ -1,15 +1,24 @@
 import * as THREE from 'three';
 import Tile from './Tile';
 
-class SolidHexTile implements Tile {
-  position: THREE.Vector3;
+class SolidHexTile extends Tile {
+  private _position: THREE.Vector3;
+
   size: number;
   height: number;
 
-  constructor(position: THREE.Vector3, size: number, height: number) {
-    this.position = position;
+  constructor(position: THREE.Vector3, q: number, r: number, size: number, height: number) {
+    super(q, r);  // Передаем q и r в родительский класс Tile
+    this._position = position;
     this.size = size;
     this.height = height;
+  }
+
+  public get position(): THREE.Vector3 {
+    return this._position;
+  }
+  public set position(value: THREE.Vector3) {
+    this._position = value;
   }
 
   createMesh(): THREE.Mesh {

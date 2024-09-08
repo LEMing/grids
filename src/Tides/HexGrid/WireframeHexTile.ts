@@ -1,13 +1,21 @@
 import * as THREE from 'three';
 import Tile from './Tile';
 
-class WireframeHexTile implements Tile {
-  position: THREE.Vector3;
+class WireframeHexTile extends Tile {
+  _position: THREE.Vector3;
   size: number;
 
-  constructor(position: THREE.Vector3, size: number) {
-    this.position = position;
+  constructor(position: THREE.Vector3, q: number, r: number, size: number) {
+    super(q, r);  // Передаем q и r в родительский класс Tile
+    this._position = position;
     this.size = size;
+  }
+
+  public get position(): THREE.Vector3 {
+    return this._position;
+  }
+  public set position(value: THREE.Vector3) {
+    this._position = value;
   }
 
   createMesh(): THREE.Group {

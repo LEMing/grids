@@ -2,51 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { ToolsNames } from '../constants.ts';
 import HexGrid from './HexGrid/HexGrid.ts';
+import Tile from './HexGrid/Tile.ts';
 import TileFactory from './HexGrid/TileFactory';
 import { createObject } from './ObjectFactory';
 import { handleMouseEvents, handleClickEvent } from './EventHandlers';
-
-const moveUnitToTile = (unit: THREE.Object3D, targetTile: THREE.Object3D) => {
-  const startPosition = unit.position.clone();
-  const targetPosition = new THREE.Vector3();
-  targetTile.getWorldPosition(targetPosition);
-
-  const duration = 1.5; // Время анимации перемещения в секундах
-  let elapsedTime = 0; // Общее время анимации
-
-  const clock = new THREE.Clock(); // Часы для отслеживания времени анимации
-
-  const animateMove = () => {
-    const delta = clock.getDelta(); // Разница времени между кадрами
-    elapsedTime += delta; // Обновляем общее время
-
-    const t = Math.min(elapsedTime / duration, 1); // Расчет параметра t (от 0 до 1)
-
-    // Линейная интерполяция позиции юнита
-    unit.position.lerpVectors(startPosition, targetPosition, t);
-
-    // Если анимация еще не завершена, продолжаем
-    if (t < 1) {
-      requestAnimationFrame(animateMove);
-    }
-  };
-
-  // Запуск анимации перемещения
-  requestAnimationFrame(animateMove);
-};
-
-const createJumpingAnimation = () => {
-  const times = [0, 0.5, 1]; // Ключевые моменты времени для анимации
-  const values = [0, 1, 0]; // Задаем высоту прыжка
-
-  const track = new THREE.VectorKeyframeTrack(
-    '.position[y]', // Анимация по оси Y
-    times,
-    values
-  );
-
-  return new THREE.AnimationClip('Jump', -1, [track]); // -1 означает бесконечное повторение
-};
+import { highlightTile, resetTileHighlight } from './tileUtils.ts';
+import { moveUnitToTile } from './unitMovement';
+import { animateUnit, stopAnimation } from './unitAnimation';
+import { findPath } from './pathFinding';
+import { drawPath } from './pathVisualization';
 
 const useTides = (
   camera: THREE.PerspectiveCamera | null,
@@ -57,50 +21,89 @@ const useTides = (
   const mouse = new THREE.Vector2();
   const hoveredTileRef = useRef<THREE.Object3D | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<THREE.Object3D | null>(null);
-  const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null); // Для анимаций
+  const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
+  const [pathLine, setPathLine] = useState<THREE.Line | null>(null);
+  const [allTiles, setAllTiles] = useState<Tile[]>([]);
 
   const { onMouseMove } = handleMouseEvents(camera, scene, raycaster, mouse, hoveredTileRef);
 
-  const animateUnit = (unit: THREE.Object3D) => {
-    const mixer = new THREE.AnimationMixer(unit);
-    const action = mixer.clipAction(createJumpingAnimation()); // Создаем прыжковую анимацию
-    action.play();
-    setMixer(mixer); // Сохраняем анимационный миксер
-  };
-
-  const stopAnimation = () => {
-    if (mixer) {
-      mixer.stopAllAction();
-      setMixer(null);
-    }
-  };
-
   const onClick = useCallback(async () => {
+    if (!allTiles.length) return;
+
     if (selectedTool === ToolsNames.MOVE && hoveredTileRef.current) {
       const tile = hoveredTileRef.current;
 
       if (selectedUnit) {
         if (tile.userData && tile.userData.type !== 'unit') {
-          // Анимация перемещения юнита
-          moveUnitToTile(selectedUnit, tile);
-          stopAnimation(); // Останавливаем анимацию прыжка после перемещения
-          setSelectedUnit(null); // Сбрасываем выбор юнита
+          console.log('Looking for startTile with selectedUnit userData:', selectedUnit?.userData);
+          console.log('Looking for endTile with hoveredTile userData:', tile?.userData);
+
+          const startTile = allTiles.find(t => {
+            if (!t.linkToMesh) return false;
+            return t.coordinates.q === selectedUnit.userData.q && t.coordinates.r === selectedUnit.userData.r;
+          });
+
+          const endTile = allTiles.find(t => {
+            if (!t.linkToMesh) return false;
+            return t.coordinates.q === tile.userData.q && t.coordinates.r === tile.userData.r;
+          });
+
+          console.log('Found startTile:', startTile);
+          console.log('Found endTile:', endTile);
+
+          if (!startTile || !endTile) {
+            console.error('Start or end tile not found.');
+            return;
+          }
+
+          // Подсвечиваем startTile и endTile
+          highlightTile(startTile, 0xff0000); // Красный для начала
+          highlightTile(endTile, 0x0000ff);   // Синий для конца
+
+          // Поиск пути
+          const path = findPath(startTile, endTile, allTiles);
+          if (pathLine) scene?.remove(pathLine); // Удаляем предыдущую линию
+          const newPathLine = drawPath(path, scene as THREE.Scene);
+          setPathLine(newPathLine);
+
+          // Анимация перемещения юнита по пути
+          for (const pathTile of path) {
+            await moveUnitToTile(selectedUnit, pathTile.linkToMesh as THREE.Mesh);
+          }
+
+          // Возвращаем исходные цвета тайлов
+          resetTileHighlight(startTile, 0x00ff00); // Вернуть исходный цвет для startTile
+          resetTileHighlight(endTile, 0x00ff00);   // Вернуть исходный цвет для endTile
+
+          stopAnimation(mixer, setMixer);
+          setSelectedUnit(null);
         } else {
-          // Если кликнули снова на юнит — деактивируем его
-          stopAnimation();
+          stopAnimation(mixer, setMixer);
           setSelectedUnit(null);
         }
       } else {
-        // Если клик по юниту — активируем его
         if (tile.userData && tile.userData.type === 'unit') {
+          // Убедимся, что при выборе юнита передаются его координаты
           setSelectedUnit(tile);
-          animateUnit(tile); // Запускаем анимацию прыжка
+          tile.userData.q = tile.position.x;  // Замените на реальные q, r
+          tile.userData.r = tile.position.z;  // Замените на реальные q, r
+          animateUnit(tile, setMixer);
         }
       }
     } else {
       await handleClickEvent(camera, scene, selectedTool, hoveredTileRef, createObject);
     }
-  }, [camera, scene, selectedTool, selectedUnit, hoveredTileRef]);
+  }, [camera, scene, selectedTool, selectedUnit, hoveredTileRef, mixer, allTiles, pathLine]);
+
+  useEffect(() => {
+    if (scene) {
+      const hexGrid = new HexGrid(10, 2, new TileFactory());
+      hexGrid.addToScene(scene);
+      const tiles = hexGrid.getAllTiles();
+      setAllTiles(tiles);
+    }
+  }, [scene]);
+
   useEffect(() => {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('click', onClick);
@@ -112,18 +115,11 @@ const useTides = (
   }, [onMouseMove, onClick]);
 
   useEffect(() => {
-    if (scene) {
-      const hexGrid = new HexGrid(10, 2, new TileFactory());
-      hexGrid.addToScene(scene);
-    }
-  }, [scene]);
-
-  useEffect(() => {
     const clock = new THREE.Clock();
 
     const animate = () => {
       if (mixer) {
-        mixer.update(clock.getDelta()); // Обновляем анимационный миксер
+        mixer.update(clock.getDelta());
       }
       requestAnimationFrame(animate);
     };
