@@ -9,7 +9,7 @@ export const fadeOutTile = (tile: THREE.Object3D) => {
   let currentOpacity = material.opacity;
 
   const fade = () => {
-    currentOpacity -= 0.01;
+    currentOpacity -= 1;
     if (currentOpacity <= 0) {
       currentOpacity = 0;
     }

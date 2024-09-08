@@ -5,9 +5,39 @@ import HexGrid from './HexGrid/HexGrid.ts';
 import TileFactory from './HexGrid/TileFactory';
 import { createObject } from './ObjectFactory';
 import { handleMouseEvents, handleClickEvent } from './EventHandlers';
+
+const moveUnitToTile = (unit: THREE.Object3D, targetTile: THREE.Object3D) => {
+  const startPosition = unit.position.clone();
+  const targetPosition = new THREE.Vector3();
+  targetTile.getWorldPosition(targetPosition);
+
+  const duration = 1.5; // Время анимации перемещения в секундах
+  let elapsedTime = 0; // Общее время анимации
+
+  const clock = new THREE.Clock(); // Часы для отслеживания времени анимации
+
+  const animateMove = () => {
+    const delta = clock.getDelta(); // Разница времени между кадрами
+    elapsedTime += delta; // Обновляем общее время
+
+    const t = Math.min(elapsedTime / duration, 1); // Расчет параметра t (от 0 до 1)
+
+    // Линейная интерполяция позиции юнита
+    unit.position.lerpVectors(startPosition, targetPosition, t);
+
+    // Если анимация еще не завершена, продолжаем
+    if (t < 1) {
+      requestAnimationFrame(animateMove);
+    }
+  };
+
+  // Запуск анимации перемещения
+  requestAnimationFrame(animateMove);
+};
+
 const createJumpingAnimation = () => {
   const times = [0, 0.5, 1]; // Ключевые моменты времени для анимации
-  const values = [0, 0.5, 0]; // Задаем высоту прыжка
+  const values = [0, 1, 0]; // Задаем высоту прыжка
 
   const track = new THREE.VectorKeyframeTrack(
     '.position[y]', // Анимация по оси Y
@@ -45,25 +75,6 @@ const useTides = (
     }
   };
 
-  const moveUnitToTile = (unit: THREE.Object3D, targetTile: THREE.Object3D) => {
-    const startPosition = unit.position.clone();
-    const targetPosition = new THREE.Vector3();
-    targetTile.getWorldPosition(targetPosition);
-
-    const duration = 1.5; // Время анимации перемещения
-
-    const animateMove = (time: number) => {
-      const elapsedTime = (time / 1000) / duration;
-      if (elapsedTime <= 1) {
-        unit.position.lerpVectors(startPosition, targetPosition, elapsedTime);
-        requestAnimationFrame(animateMove);
-      } else {
-        unit.position.copy(targetPosition);
-      }
-    };
-    requestAnimationFrame(animateMove);
-  };
-
   const onClick = useCallback(async () => {
     if (selectedTool === ToolsNames.MOVE && hoveredTileRef.current) {
       const tile = hoveredTileRef.current;
@@ -90,7 +101,6 @@ const useTides = (
       await handleClickEvent(camera, scene, selectedTool, hoveredTileRef, createObject);
     }
   }, [camera, scene, selectedTool, selectedUnit, hoveredTileRef]);
-
   useEffect(() => {
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('click', onClick);
