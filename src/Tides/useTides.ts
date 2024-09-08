@@ -22,7 +22,7 @@ const useTides = (
   }, [camera, scene]);
 
   // Обрабатываем клик для добавления объекта на выбранный тайл
-  const onDocumentClick = useCallback(() => {
+  const onDocumentClick = useCallback(async () => {
     if (camera && scene && selectedTool && hoveredTileRef.current) {
       const tile = hoveredTileRef.current; // Получаем выделенный тайл
 
@@ -34,13 +34,13 @@ const useTides = (
       // Создаём объект в зависимости от выбранного инструмента
       switch (selectedTool) {
         case ToolsNames.STORE:
-          object = createHouse(); // Функция создания дома
+          object = await createHouse(); // Функция создания дома
           break;
         case ToolsNames.WALL:
-          object = createUnit(); // Функция создания юнита
+          object = await createUnit(); // Функция создания юнита
           break;
         case ToolsNames.UNIT:
-          object = createToolObject(); // Функция создания объекта инструментов
+          object = await createToolObject(); // Функция создания объекта инструментов
           break;
         default:
           break;
@@ -76,20 +76,20 @@ const useTides = (
 export default useTides;
 
 // Пример функций для создания объектов
-const createHouse = () => {
+const createHouse = async () => {
   const geometry = new THREE.BoxGeometry(2, 2, 2);
   const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
   return new THREE.Mesh(geometry, material);
 };
 
 // Создание юнита вместо офиса
-const createUnit = () => {
+const createUnit = async () => {
   const geometry = new THREE.SphereGeometry(1, 32, 32); // Юнит в форме сферы
   const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
   return new THREE.Mesh(geometry, material);
 };
 
-const createToolObject = () => {
+const createToolObject = async () => {
   const geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
   const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
   return new THREE.Mesh(geometry, material);
