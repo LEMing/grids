@@ -37,8 +37,8 @@ const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectToo
             onClick={() => onSelectTool('house')}
           />
           <BuildingOfficeIcon
-            className={`tool-icon ${selectedTool === 'office' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('office')}
+            className={`tool-icon ${selectedTool === 'unit' ? 'selected' : ''}`}
+            onClick={() => onSelectTool('unit')}
           />
           <WrenchScrewdriverIcon
             className={`tool-icon ${selectedTool === 'tools' ? 'selected' : ''}`}

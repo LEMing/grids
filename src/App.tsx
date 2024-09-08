@@ -65,8 +65,8 @@ const App: React.FC = () => {
     };
   }, []);
 
-  // Логика для управления плитками (Tides)
-  useTides(camera, scene);
+  // Передаём selectedTool в useTides для управления объектами на сцене
+  useTides(camera, scene, selectedTool);
 
   // Функция выбора инструмента
   const handleToolSelect = (tool: string) => {

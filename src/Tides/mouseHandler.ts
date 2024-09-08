@@ -26,6 +26,8 @@ export const handleMouseMove = (
 
   if (intersects.length > 0) {
     const intersectedTile = intersects[0].object;
+    console.log('Hovered Tile:', intersectedTile.position); // Логируем позицию тайла
+    console.log('Intersected Object:', intersectedTile); // Логируем сам объект
 
     if (hoveredTileRef.current !== intersectedTile) {
       if (hoveredTileRef.current) {

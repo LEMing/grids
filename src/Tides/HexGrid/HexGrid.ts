@@ -37,8 +37,9 @@ class HexGrid {
 
   addToScene(scene: THREE.Scene): void {
     const hexTiles = this.generateGrid();
-    hexTiles.forEach(tile => {
+    hexTiles.forEach((tile, index) => {
       const mesh = tile.createMesh();
+      mesh.name = `Tile ${index}`;
       scene.add(mesh);
     });
   }
