@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import {ToolsNames} from '../constants.ts';
 import HexGrid from './HexGrid/HexGrid.ts';
 import TileFactory from './HexGrid/TileFactory';
 import { handleMouseMove } from './mouseHandler';
@@ -32,13 +33,13 @@ const useTides = (
 
       // Создаём объект в зависимости от выбранного инструмента
       switch (selectedTool) {
-        case 'house':
+        case ToolsNames.STORE:
           object = createHouse(); // Функция создания дома
           break;
-        case 'unit':
+        case ToolsNames.WALL:
           object = createUnit(); // Функция создания юнита
           break;
-        case 'tools':
+        case ToolsNames.UNIT:
           object = createToolObject(); // Функция создания объекта инструментов
           break;
         default:

@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
-  HomeIcon,
-  UsersIcon,
-  ShieldCheckIcon,
   FireIcon,
   BuildingOfficeIcon,
-  WrenchScrewdriverIcon
-} from '@heroicons/react/24/outline';
+  BuildingStorefrontIcon,
+  CursorArrowRaysIcon,
+  ArrowTrendingUpIcon,
+  UserPlusIcon
+} from '@heroicons/react/16/solid';
 
-import './GameToolsMenu.css'; // Подключаем CSS
+import './GameToolsMenu.css';
+import {ToolsNames} from '../constants.ts'; // Подключаем CSS
 
 interface GameToolsMenuProps {
   selectedTool: string;
@@ -32,17 +33,17 @@ const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectToo
       <div className="tool-section">
         <h4 className="menu-title">Build</h4>
         <div className="tool-icons">
-          <HomeIcon
-            className={`tool-icon ${selectedTool === 'house' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('house')}
+          <BuildingStorefrontIcon
+            className={`tool-icon ${selectedTool === ToolsNames.STORE ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.STORE)}
           />
           <BuildingOfficeIcon
-            className={`tool-icon ${selectedTool === 'unit' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('unit')}
+            className={`tool-icon ${selectedTool === ToolsNames.WALL ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.WALL)}
           />
-          <WrenchScrewdriverIcon
-            className={`tool-icon ${selectedTool === 'tools' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('tools')}
+          <UserPlusIcon
+            className={`tool-icon ${selectedTool === ToolsNames.UNIT ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.UNIT)}
           />
         </div>
       </div>
@@ -53,17 +54,17 @@ const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectToo
       <div className="tool-section">
         <h4 className="menu-title">Manage Units</h4>
         <div className="tool-icons">
-          <UsersIcon
-            className={`tool-icon ${selectedTool === 'units' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('units')}
+          <CursorArrowRaysIcon
+            className={`tool-icon ${selectedTool === ToolsNames.SELECT ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.SELECT)}
+          />
+          <ArrowTrendingUpIcon
+            className={`tool-icon ${selectedTool === ToolsNames.MOVE ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.MOVE)}
           />
           <FireIcon
-            className={`tool-icon ${selectedTool === 'fire' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('fire')}
-          />
-          <ShieldCheckIcon
-            className={`tool-icon ${selectedTool === 'shield' ? 'selected' : ''}`}
-            onClick={() => onSelectTool('shield')}
+            className={`tool-icon ${selectedTool === ToolsNames.FIRE ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.FIRE)}
           />
         </div>
       </div>
