@@ -24,8 +24,13 @@ const createWall = async () => {
 const createUnit = async () => {
   const geometry = new THREE.SphereGeometry(1, 32, 32);
   const material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
-  return new THREE.Mesh(geometry, material);
+  const unit = new THREE.Mesh(geometry, material);
+
+  // Назначаем тип юниту для идентификации
+  unit.userData = { type: 'unit' };
+  return unit;
 };
+
 
 const createStore = async () => {
   const geometry = new THREE.CylinderGeometry(1, 1, 3, 32);
