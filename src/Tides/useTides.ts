@@ -27,7 +27,6 @@ const useTides = (
 
       const worldPosition = new THREE.Vector3();
       tile.getWorldPosition(worldPosition);
-      console.log('Adding object to world position:', worldPosition);
 
       let object: THREE.Mesh | null = null;
 

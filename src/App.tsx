@@ -71,7 +71,6 @@ const App: React.FC = () => {
   // Функция выбора инструмента
   const handleToolSelect = (tool: string) => {
     setSelectedTool(tool);
-    console.log(`Selected tool: ${tool}`);
   };
 
   return (
