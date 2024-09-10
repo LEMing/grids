@@ -3,11 +3,11 @@ import HexTileCoordinates from './HexTileCoordinates'; // Добавляем н�
 
 abstract class Tile {
   public _linkToMesh: undefined | THREE.Object3D;
-  public coordinates: HexTileCoordinates;
+  public hexCoordinates: HexTileCoordinates;
 
   protected constructor(q: number, r: number) {
     this._linkToMesh = undefined;
-    this.coordinates = new HexTileCoordinates(q, r); // Добавляем координаты
+    this.hexCoordinates = new HexTileCoordinates(q, r); // Добавляем координаты
   }
 
   abstract createMesh(): THREE.Object3D;
@@ -34,6 +34,13 @@ abstract class Tile {
 
   get position(): THREE.Vector3 {
     return this.linkToMesh ? this.linkToMesh.position : new THREE.Vector3();
+  }
+
+  // Преобразование шестиугольных координат в декартовы
+  hexToCartesian(q: number, r: number, size: number): THREE.Vector3 {
+    const x = size * Math.sqrt(3) * (q + r / 2);
+    const z = size * 3 / 2 * r;
+    return new THREE.Vector3(x, 0, z);
   }
 }
 

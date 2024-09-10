@@ -5,9 +5,9 @@ class WireframeHexTile extends Tile {
   _position: THREE.Vector3;
   size: number;
 
-  constructor(position: THREE.Vector3, q: number, r: number, size: number) {
+  constructor(q: number, r: number, size: number) {
     super(q, r);  // Передаем q и r в родительский класс Tile
-    this._position = position;
+    this._position = this.hexToCartesian(q, r, size);
     this.size = size;
   }
 

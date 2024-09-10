@@ -40,12 +40,12 @@ const useTides = (
 
           const startTile = allTiles.find(t => {
             if (!t.linkToMesh) return false;
-            return t.coordinates.q === selectedUnit.userData.q && t.coordinates.r === selectedUnit.userData.r;
+            return t.hexCoordinates.q === selectedUnit.userData.q && t.hexCoordinates.r === selectedUnit.userData.r;
           });
 
           const endTile = allTiles.find(t => {
             if (!t.linkToMesh) return false;
-            return t.coordinates.q === tile.userData.q && t.coordinates.r === tile.userData.r;
+            return t.hexCoordinates.q === tile.userData.q && t.hexCoordinates.r === tile.userData.r;
           });
 
           console.log('Found startTile:', startTile);

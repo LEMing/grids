@@ -14,8 +14,8 @@ const getNeighbors = (tile: Tile, allTiles: Tile[]): Tile[] => {
 
   directions.forEach(direction => {
     const neighbor = allTiles.find(t =>
-      t.coordinates.q === tile.coordinates.q + direction.q &&
-      t.coordinates.r === tile.coordinates.r + direction.r
+      t.hexCoordinates.q === tile.hexCoordinates.q + direction.q &&
+      t.hexCoordinates.r === tile.hexCoordinates.r + direction.r
     );
     if (neighbor) neighbors.push(neighbor);
   });
@@ -26,9 +26,9 @@ const getNeighbors = (tile: Tile, allTiles: Tile[]): Tile[] => {
 // Манхэттенское расстояние (шестиугольная система)
 const heuristic = (a: Tile, b: Tile) => {
   return Math.max(
-    Math.abs(a.coordinates.q - b.coordinates.q),
-    Math.abs(a.coordinates.r - b.coordinates.r),
-    Math.abs(a.coordinates.s - b.coordinates.s)
+    Math.abs(a.hexCoordinates.q - b.hexCoordinates.q),
+    Math.abs(a.hexCoordinates.r - b.hexCoordinates.r),
+    Math.abs(a.hexCoordinates.s - b.hexCoordinates.s)
   );
 };
 

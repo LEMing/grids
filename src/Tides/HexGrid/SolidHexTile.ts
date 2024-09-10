@@ -7,9 +7,9 @@ class SolidHexTile extends Tile {
   size: number;
   height: number;
 
-  constructor(position: THREE.Vector3, q: number, r: number, size: number, height: number) {
+  constructor(q: number, r: number, size: number, height: number) {
     super(q, r);  // Передаем q и r в родительский класс Tile
-    this._position = position;
+    this._position = this.hexToCartesian(q, r, size);
     this.size = size;
     this.height = height;
   }
