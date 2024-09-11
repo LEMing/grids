@@ -13,8 +13,8 @@ class TileFactory {
     }
 
     // Добавляем q и r в userData объекта mesh
-    if (tile.linkToMesh) {
-      tile.linkToMesh.userData = { q, r, type: 'tile' };  // Обновляем userData
+    if (tile.linkToObject3D) {
+      tile.linkToObject3D.userData = {...tile.linkToObject3D.userData, q, r, type: 'tile' };  // Обновляем userData
     }
 
     return tile;

@@ -6,7 +6,6 @@ import Tile from './HexGrid/Tile.ts';
 import TileFactory from './HexGrid/TileFactory';
 import { createObject } from './ObjectFactory';
 import { handleMouseEvents, handleClickEvent } from './EventHandlers';
-import { highlightTile, resetTileHighlight } from './tileUtils.ts';
 import { moveUnitToTile } from './unitMovement';
 import { animateUnit, stopAnimation } from './unitAnimation';
 import { findPath } from './pathFinding';
@@ -19,7 +18,7 @@ const useTides = (
 ) => {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
-  const hoveredTileRef = useRef<THREE.Object3D | null>(null);
+  const hoveredTileRef = useRef<Tile | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<THREE.Object3D | null>(null);
   const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
   const [pathLine, setPathLine] = useState<THREE.Line | null>(null);
@@ -34,18 +33,18 @@ const useTides = (
       const tile = hoveredTileRef.current;
 
       if (selectedUnit) {
-        if (tile.userData && tile.userData.type !== 'unit') {
+        if (tile) {
           console.log('Looking for startTile with selectedUnit userData:', selectedUnit?.userData);
-          console.log('Looking for endTile with hoveredTile userData:', tile?.userData);
+          console.log('Looking for endTile with hoveredTile userData:', tile.linkToObject3D?.userData);
 
           const startTile = allTiles.find(t => {
-            if (!t.linkToMesh) return false;
+            if (!t.linkToObject3D) return false;
             return t.hexCoordinates.q === selectedUnit.userData.q && t.hexCoordinates.r === selectedUnit.userData.r;
           });
 
           const endTile = allTiles.find(t => {
-            if (!t.linkToMesh) return false;
-            return t.hexCoordinates.q === tile.userData.q && t.hexCoordinates.r === tile.userData.r;
+            if (!t.linkToObject3D) return false;
+            return t.hexCoordinates.q === tile.hexCoordinates.q && t.hexCoordinates.r === tile.hexCoordinates.r;
           });
 
           console.log('Found startTile:', startTile);
@@ -57,8 +56,8 @@ const useTides = (
           }
 
           // Подсвечиваем startTile и endTile
-          highlightTile(startTile, 0xff0000); // Красный для начала
-          highlightTile(endTile, 0x0000ff);   // Синий для конца
+          startTile.highlightTile(0xff0000); // Красный для начала
+          endTile.highlightTile(0x0000ff);   // Синий для конца
 
           // Поиск пути
           const path = findPath(startTile, endTile, allTiles);
@@ -68,12 +67,12 @@ const useTides = (
 
           // Анимация перемещения юнита по пути
           for (const pathTile of path) {
-            await moveUnitToTile(selectedUnit, pathTile.linkToMesh as THREE.Mesh);
+            await moveUnitToTile(selectedUnit, pathTile.linkToObject3D as THREE.Mesh);
           }
 
           // Возвращаем исходные цвета тайлов
-          resetTileHighlight(startTile, 0x00ff00); // Вернуть исходный цвет для startTile
-          resetTileHighlight(endTile, 0x00ff00);   // Вернуть исходный цвет для endTile
+          startTile.resetTileHighlight(0x00ff00); // Вернуть исходный цвет для startTile
+          endTile.resetTileHighlight(0x00ff00);   // Вернуть исходный цвет для endTile
 
           stopAnimation(mixer, setMixer);
           setSelectedUnit(null);
@@ -82,12 +81,11 @@ const useTides = (
           setSelectedUnit(null);
         }
       } else {
-        if (tile.userData && tile.userData.type === 'unit') {
+        if (tile.room.children[0].userData && tile.room.children[0].userData.type === 'unit') {
           // Убедимся, что при выборе юнита передаются его координаты
-          setSelectedUnit(tile);
-          tile.userData.q = tile.position.x;  // Замените на реальные q, r
-          tile.userData.r = tile.position.z;  // Замените на реальные q, r
-          animateUnit(tile, setMixer);
+          setSelectedUnit(tile.room.children[0]);
+
+          animateUnit(tile.room.children[0], setMixer);
         }
       }
     } else {
