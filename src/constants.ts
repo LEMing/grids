@@ -5,4 +5,5 @@ export enum ToolsNames {
   SELECT = 'select',
   MOVE = 'move',
   FIRE = 'fire',
+  DELETE = 'DELETE',
 }

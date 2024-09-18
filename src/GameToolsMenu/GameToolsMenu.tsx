@@ -5,15 +5,16 @@ import {
   BuildingStorefrontIcon,
   CursorArrowRaysIcon,
   ArrowTrendingUpIcon,
-  UserPlusIcon
+  UserPlusIcon,
+  TrashIcon
 } from '@heroicons/react/16/solid';
 
 import './GameToolsMenu.css';
-import {ToolsNames} from '../constants.ts'; // Подключаем CSS
+import {ToolsNames} from '../constants'; // Подключаем CSS
 
 interface GameToolsMenuProps {
   selectedTool: string;
-  onSelectTool: (tool: string) => void;
+  onSelectTool: (tool: ToolsNames) => void;
 }
 
 const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectTool }) => {
@@ -65,6 +66,10 @@ const GameToolsMenu: React.FC<GameToolsMenuProps> = ({ selectedTool, onSelectToo
           <FireIcon
             className={`tool-icon ${selectedTool === ToolsNames.FIRE ? 'selected' : ''}`}
             onClick={() => onSelectTool(ToolsNames.FIRE)}
+          />
+          <TrashIcon
+            className={`tool-icon ${selectedTool === ToolsNames.DELETE ? 'selected' : ''}`}
+            onClick={() => onSelectTool(ToolsNames.DELETE)}
           />
         </div>
       </div>

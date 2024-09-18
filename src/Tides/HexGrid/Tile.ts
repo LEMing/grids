@@ -20,6 +20,7 @@ abstract class Tile {
       object3D = this.createMesh();
       object3D.userData.tile = this;
       this._linkToObject3D = object3D;
+      this._linkToObject3D.add(this.room);
     }
     return this.linkToObject3D;
   }
@@ -60,9 +61,7 @@ abstract class Tile {
 
   fadeOutTile() {
     const mesh = this.findMesh(this.linkToObject3D);
-    console.log('mesh', mesh);
     const material = mesh?.material as THREE.MeshStandardMaterial;
-    console.log(material);
     if (material) {
       let currentOpacity = 1;
 
@@ -81,9 +80,22 @@ abstract class Tile {
     }
   };
 
+  getMesh(): THREE.Mesh {
+    const mesh = this.linkToObject3D.children.find(child => child instanceof THREE.Mesh)
+    return mesh as THREE.Mesh;
+  }
+
+  changeTileColor(color: number) {
+    if (this.linkToObject3D) {
+      const mesh = this.getMesh();
+      const material = mesh.material as THREE.MeshStandardMaterial;
+      material.color.set(color);
+    }
+  }
+
   highlightTile(color: number) {
     if (this.linkToObject3D) {
-      const mesh = this.linkToObject3D.children.find(child => child instanceof THREE.Mesh) as THREE.Mesh;
+      const mesh = this.getMesh();
 
       // Проверяем, что материал — это MeshStandardMaterial
       const material = mesh.material as THREE.MeshStandardMaterial;

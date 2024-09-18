@@ -50,10 +50,10 @@ class WireframeHexTile extends Tile {
 
     // Create the mesh for the transparent fill
     const fillMesh = new THREE.Mesh(fillGeometry, fillMaterial);
-
+    fillMesh.userData.tile = this;
     // Create the wireframe outline from the edges
     const wireframe = new THREE.LineSegments(edgeGeometry, edgeMaterial);
-
+    wireframe.userData.tile = this;
     // Group the two meshes together
     const tileGroup = new THREE.Group();
     tileGroup.add(fillMesh);
@@ -63,7 +63,7 @@ class WireframeHexTile extends Tile {
     tileGroup.position.set(this.position.x, this.position.y, this.position.z);
     tileGroup.rotation.x = Math.PI / 2;
     tileGroup.rotation.z = Math.PI / 6;
-
+    tileGroup.userData.tile = this;
     return tileGroup;
   }
 }

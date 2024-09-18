@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import {ToolsNames} from '../constants.ts';
 
-export const createObject = async (type: ToolsNames): Promise<THREE.Mesh | null> => {
+export const objectFactory = async (type: ToolsNames): Promise<THREE.Mesh | null> => {
   switch (type) {
     case ToolsNames.WALL:
       return createWall();

@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
-import { SimpleViewer, type SimpleViewerOptions, defaultOptions } from 'threedviewer';
-import StatusPanel from './StatusPanel/StatusPanel.tsx';
-import useTides from './Tides/useTides';
+import {defaultOptions, SimpleViewer, type SimpleViewerOptions} from 'threedviewer';
+import {ToolsNames} from './constants.ts';
 import GameToolsMenu from './GameToolsMenu'; // Подключаем меню инструментов
-
+import StatusPanel from './StatusPanel/StatusPanel.tsx';
+import useGame from './Tides/useGame.ts';
 import './App.css'; // Можно добавить свой стиль для всей страницы
 
 const App: React.FC = () => {
@@ -18,7 +18,7 @@ const App: React.FC = () => {
 
   const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
-  const [selectedTool, setSelectedTool] = useState<string>('house'); // Текущий инструмент
+  const [selectedTool, setSelectedTool] = useState<ToolsNames>(ToolsNames.SELECT); // Текущий инструмент
 
   const resources = 150;
   const money = 1000;
@@ -46,8 +46,13 @@ const App: React.FC = () => {
         fov: 60,
         autoFitToObject: false,
       },
+      controls: {
+        ...defaultOptions.controls,
+        type: 'OrbitControls',
+      },
       helpers: {
         ...defaultOptions.helpers,
+        addGizmo: false,
         gridHelper: false,
         color: '#ff0000',
       },
@@ -66,10 +71,10 @@ const App: React.FC = () => {
   }, []);
 
   // Передаём selectedTool в useTides для управления объектами на сцене
-  useTides(camera, scene, selectedTool);
+  useGame(camera, scene, selectedTool);
 
   // Функция выбора инструмента
-  const handleToolSelect = (tool: string) => {
+  const handleToolSelect = (tool: ToolsNames) => {
     setSelectedTool(tool);
   };
 
