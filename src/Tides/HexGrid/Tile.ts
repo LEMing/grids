@@ -66,7 +66,7 @@ abstract class Tile {
       let currentOpacity = 1;
 
       const fade = () => {
-        currentOpacity -= 0.01;
+        currentOpacity -= 0.1;
         if (currentOpacity <= 0) {
           currentOpacity = 0;
         }

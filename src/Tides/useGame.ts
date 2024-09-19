@@ -1,20 +1,18 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import * as THREE from 'three';
 import { ToolsNames } from '../constants';
 import HexGrid from './HexGrid/HexGrid.ts';
 import Tile from './HexGrid/Tile';
 import TileFactory from './HexGrid/TileFactory.ts';
 import {objectFactory} from './ObjectFactory.ts';
-import { UnitController } from './UnitController'; // New controller to handle unit-specific logic
-import { EventManager } from './EventManager'; // New module for event management
+import { UnitController } from './UnitController';
+import { EventManager } from './EventManager';
 
 const useGame = (
   camera: THREE.PerspectiveCamera | null,
   scene: THREE.Scene | null,
   selectedTool: ToolsNames
 ) => {
-  const mouse = new THREE.Vector2();
-  const hoveredTileRef = useRef<Tile | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<THREE.Object3D | null>(null);
   const [mixer, setMixer] = useState<THREE.AnimationMixer | null>(null);
   const [_, setAllTiles] = useState<Tile[]>([]);
@@ -26,17 +24,17 @@ const useGame = (
 
   const eventManager = useMemo(() => {
     if (!camera || !scene) return null;
-    return new EventManager(camera, scene, mouse, hoveredTileRef)
-  }, [camera, hoveredTileRef, mouse]);
+    return new EventManager(camera, scene)
+  }, [camera]);
 
   const onMove = useCallback((event: MouseEvent) => {
     if (!eventManager) return;
     eventManager.onMouseMove(event);
   }, [eventManager]);
 
-  const onClick = useCallback(async () => {
+  const onClick = useCallback(async (event: MouseEvent) => {
     if (!eventManager) return;
-    await eventManager.onMouseClick(selectedTool, objectFactory);
+    await eventManager.onMouseClick(event, selectedTool, objectFactory);
   }, [eventManager]);
 
   useEffect(() => {
