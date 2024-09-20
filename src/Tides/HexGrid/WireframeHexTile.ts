@@ -56,6 +56,7 @@ class WireframeHexTile extends Tile {
     wireframe.userData.tile = this;
     // Group the two meshes together
     const tileGroup = new THREE.Group();
+    fillMesh.name = 'FillMesh'
     tileGroup.add(fillMesh);
     tileGroup.add(wireframe);
 

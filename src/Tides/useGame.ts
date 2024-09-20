@@ -7,10 +7,12 @@ import TileFactory from './HexGrid/TileFactory.ts';
 import {objectFactory} from './ObjectFactory.ts';
 import { UnitController } from './UnitController';
 import { EventManager } from './EventManager';
+import throttle from 'lodash/throttle';
 
 const useGame = (
   camera: THREE.PerspectiveCamera | null,
   scene: THREE.Scene | null,
+  renderer: THREE.Renderer | null,
   selectedTool: ToolsNames
 ) => {
   const [selectedUnit, setSelectedUnit] = useState<THREE.Object3D | null>(null);
@@ -23,19 +25,24 @@ const useGame = (
   }, [mixer, selectedUnit]);
 
   const eventManager = useMemo(() => {
-    if (!camera || !scene) return null;
-    return new EventManager(camera, scene)
-  }, [camera]);
+    if (!camera || !scene || !renderer) return null;
+    return new EventManager(camera, scene, renderer);
+  }, [camera, scene, renderer]);
 
   const onMove = useCallback((event: MouseEvent) => {
     if (!eventManager) return;
-    eventManager.onMouseMove(event);
+
+    const throttledMouseMove = throttle((event: MouseEvent) => {
+      eventManager.onMouseMove(event);
+    }, 1000 / 60);
+
+    throttledMouseMove(event);
   }, [eventManager]);
 
   const onClick = useCallback(async (event: MouseEvent) => {
     if (!eventManager) return;
     await eventManager.onMouseClick(event, selectedTool, objectFactory);
-  }, [eventManager]);
+  }, [eventManager, selectedTool]);
 
   useEffect(() => {
     if (scene) {

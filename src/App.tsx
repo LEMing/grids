@@ -7,7 +7,7 @@ import {ToolsNames} from './constants.ts';
 import GameToolsMenu from './GameToolsMenu'; // Подключаем меню инструментов
 import StatusPanel from './StatusPanel/StatusPanel.tsx';
 import useGame from './Tides/useGame.ts';
-import './App.css'; // Можно добавить свой стиль для всей страницы
+import './App.css';
 
 const App: React.FC = () => {
   const mountRef = useRef<HTMLDivElement | null>(null);
@@ -18,7 +18,8 @@ const App: React.FC = () => {
 
   const [camera, setCamera] = useState<THREE.PerspectiveCamera | null>(null);
   const [scene, setScene] = useState<THREE.Scene | null>(null);
-  const [selectedTool, setSelectedTool] = useState<ToolsNames>(ToolsNames.SELECT); // Текущий инструмент
+  const [renderer, setRenderer] = useState<THREE.Renderer | null>(null);
+  const [selectedTool, setSelectedTool] = useState<ToolsNames>(ToolsNames.SELECT);
 
   const resources = 150;
   const money = 1000;
@@ -32,7 +33,11 @@ const App: React.FC = () => {
     if (sceneRef.current) {
       setScene(sceneRef.current);
     }
-  }, [sceneRef, cameraRef]);
+
+    if (rendererRef.current) {
+      setRenderer(rendererRef.current);
+    }
+  }, []);
 
   const options: SimpleViewerOptions = useMemo(() => {
     return {
@@ -43,7 +48,9 @@ const App: React.FC = () => {
         ...defaultOptions.camera,
         cameraPosition: [12 * 6, 12 * 6, 12 * 6],
         cameraTarget: [0, 0, 0],
-        fov: 60,
+        cameraFov: 50, // From initializeCamera
+        cameraNear: 0.1, // From initializeCamera
+        cameraFar: 100000, // From initializeCamera
         autoFitToObject: false,
       },
       controls: {
@@ -71,7 +78,7 @@ const App: React.FC = () => {
   }, []);
 
   // Передаём selectedTool в useTides для управления объектами на сцене
-  useGame(camera, scene, selectedTool);
+  useGame(camera, scene, renderer, selectedTool);
 
   // Функция выбора инструмента
   const handleToolSelect = (tool: ToolsNames) => {
