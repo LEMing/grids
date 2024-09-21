@@ -7,12 +7,27 @@ abstract class Tile {
 
   protected constructor(q: number, r: number) {
     this._linkToObject3D = undefined;
-    this.hexCoordinates = new HexTileCoordinates(q, r); // Добавляем координаты
+    this.hexCoordinates = new HexTileCoordinates(q, r);
   }
 
   abstract createMesh(): THREE.Object3D;
 
   public room: THREE.Group = new THREE.Group();
+
+  abstract toSelect(color: number): void;  // Объявляем как абстрактный метод
+  abstract resetSelection(): void;  // Объявляем как абстрактный метод
+
+  addToTheRoom(object: THREE.Object3D) {
+    if (this.room.children.length > 0) {
+      const lastObject = this.room.children[this.room.children.length - 1];
+      object.position.z = lastObject.position.z - 1;
+    }
+    this.room.add(object);
+  }
+
+  removeFromTheRoom(object: THREE.Object3D) {
+    this.room.remove(object);
+  }
 
   execute(): THREE.Object3D {
     let object3D;
@@ -52,7 +67,6 @@ abstract class Tile {
     return this.linkToObject3D ? this.linkToObject3D.position : new THREE.Vector3();
   }
 
-  // Преобразование шестиугольных координат в декартовы
   hexToCartesian(q: number, r: number, size: number): THREE.Vector3 {
     const x = size * Math.sqrt(3) * (q + r / 2);
     const z = size * 3 / 2 * r;
@@ -78,7 +92,7 @@ abstract class Tile {
 
       requestAnimationFrame(fade);
     }
-  };
+  }
 
   getMesh(): THREE.Mesh {
     const mesh = this.linkToObject3D.children.find(child => child instanceof THREE.Mesh)
@@ -92,32 +106,6 @@ abstract class Tile {
       material.color.set(color);
     }
   }
-
-  highlightTile(color: number) {
-    if (this.linkToObject3D) {
-      const mesh = this.getMesh();
-
-      // Проверяем, что материал — это MeshStandardMaterial
-      const material = mesh.material as THREE.MeshStandardMaterial;
-
-      material.color.set(color);
-      material.transparent = true;  // Убедимся, что поддерживается прозрачность
-      material.opacity = 1;  // Сделать тайл полностью видимым при подсветке
-    }
-  };
-
-  resetTileHighlight(originalColor: number) {
-    if (this.linkToObject3D) {
-      const mesh = this.linkToObject3D.children.find(child => child instanceof THREE.Mesh) as THREE.Mesh;
-
-      // Проверяем, что материал — это MeshStandardMaterial
-      const material = mesh.material as THREE.MeshStandardMaterial;
-
-      material.color.set(originalColor);
-      material.opacity = 0.5;  // Сбросить прозрачность, если это нужно
-    }
-  };
-
 }
 
 export default Tile;

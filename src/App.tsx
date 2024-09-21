@@ -42,6 +42,7 @@ const App: React.FC = () => {
   const options: SimpleViewerOptions = useMemo(() => {
     return {
       ...defaultOptions,
+      envMapUrl: '',
       staticScene: false,
       backgroundColor: '#000000',
       camera: {
@@ -63,10 +64,38 @@ const App: React.FC = () => {
         gridHelper: false,
         color: '#ff0000',
       },
-      lights: {
-        ambient: { intensity: 0.5 },
-        directional: { position: [10, 10, 5] },
-      },
+      lightning: {
+        ambientLight: {
+          color: '#404040',
+          intensity: Math.PI,
+        },
+        hemisphereLight: {
+          skyColor: '#ffffbb',
+          groundColor: '#080820',
+          intensity: 1,
+        },
+        directionalLight: {
+          color: '#ffffff',
+          intensity: Math.PI,
+          position: new THREE.Vector3(20, 20, 10),
+          castShadow: false,
+          shadow: {
+            mapSize: {
+              width: 4096 * 2,
+              height: 4096 * 2,
+            },
+            camera: {
+              near: 0.1,
+              far: 100,  // Уменьшаем диапазон камеры теней
+              left: -50,  // Сужаем левую и правую границы
+              right: 50,
+              top: 50,  // Сужаем верхнюю и нижнюю границы
+              bottom: -50,
+            },
+            bias: -0.005,  // Уменьшаем bias для более точного расчёта теней
+            radius: 1,  // Увеличиваем радиус для более мягких теней
+          },
+        }      },
       threeBaseRefs: {
         scene: sceneRef,
         camera: cameraRef,

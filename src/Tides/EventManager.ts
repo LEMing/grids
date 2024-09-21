@@ -9,13 +9,14 @@ export class EventManager {
   private raycaster: THREE.Raycaster;
   private readonly mouse: THREE.Vector2;
   private hoveredTile: Tile | null;
+  private previousHoveredTile: Tile | null; // Добавляем поле для предыдущего тайла
   private helperLine: THREE.Line | null;
-// New constants for offset and ray length
 
+  // Constants for offset and ray length
   private readonly HELPER_LINE_OFFSET = new THREE.Vector3(0, 0.1, 0);
   private readonly HELPER_LINE_LENGTH = 500;
 
-  // New reusable objects for calculations
+  // Reusable objects for calculations
   private readonly startPoint: THREE.Vector3;
   private readonly endPoint: THREE.Vector3;
   private readonly positionArray: Float32Array;
@@ -30,6 +31,7 @@ export class EventManager {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
     this.hoveredTile = null;
+    this.previousHoveredTile = null; // Инициализируем предыдущий выделенный тайл как null
     this.renderer = renderer;
     this.helperLine = null;
 
@@ -43,14 +45,12 @@ export class EventManager {
 
   updateHelper() {
     if (this.helperLine) {
-      // Update existing helperLine geometry
       this.startPoint.copy(this.raycaster.ray.origin).add(this.HELPER_LINE_OFFSET);
       this.endPoint.copy(this.raycaster.ray.direction)
       .multiplyScalar(this.HELPER_LINE_LENGTH)
       .add(this.raycaster.ray.origin)
       .add(this.HELPER_LINE_OFFSET);
 
-      // Update the position array
       this.positionArray[0] = this.startPoint.x;
       this.positionArray[1] = this.startPoint.y;
       this.positionArray[2] = this.startPoint.z;
@@ -58,12 +58,11 @@ export class EventManager {
       this.positionArray[4] = this.endPoint.y;
       this.positionArray[5] = this.endPoint.z;
 
-      // Update the buffer attribute
       const positionAttribute = this.helperLine.geometry.attributes.position;
       positionAttribute.array = this.positionArray;
       positionAttribute.needsUpdate = true;
-    } else {      // Create new helperLine if it doesn't exist
-      const offset = this.HELPER_LINE_OFFSET; // Small upward offset
+    } else {
+      const offset = this.HELPER_LINE_OFFSET;
       const line = this.createHelperLine(offset);
       this.helperLine = line;
       this.scene.add(line);
@@ -89,12 +88,13 @@ export class EventManager {
     return line;
   }
 
-  onMouseMove(event: MouseEvent) {
+  onMouseMove(event: MouseEvent, selectedTool: ToolsNames) {
     this.raycaster.setFromCamera(this.mouse, this.camera);
     this.hoveredTile = this.getHoveredTile(event);
-    this.flashTile();
+    const color = selectedTool === ToolsNames.DELETE? 0xff0000 : 0x0000ff;
+    this.selectTile(color);
     this.updateHelper();
-  };
+  }
 
   async onMouseClick(
     event: MouseEvent,
@@ -106,17 +106,14 @@ export class EventManager {
       case ToolsNames.WALL:
       case ToolsNames.UNIT:
       case ToolsNames.STORE:
-        console.log('Create object function');
         if (this.hoveredTile) {
           const tile = this.hoveredTile;
-          const worldPosition = new THREE.Vector3();
-          tile.linkToObject3D.getWorldPosition(worldPosition);
-
           const object = await createObjectFn(selectedTool);
-
           if (object) {
-            // object.position.copy(worldPosition);
-            tile.room.add(object);
+            object.castShadow = true;
+            tile.addToTheRoom(object);
+            tile.resetSelection();
+            tile.toSelect(0x0000FF);
           }
         }
         break;
@@ -124,8 +121,9 @@ export class EventManager {
         if (this.hoveredTile) {
           const tile = this.hoveredTile;
           if (tile.room.children.length > 0) {
-            // Remove the first child from the room
-            tile.room.remove(tile.room.children[0]);
+            tile.room.remove(tile.room.children[tile.room.children.length - 1]);
+            tile.resetSelection();
+            tile.toSelect(0xFF0000);
           }
         }
         break;
@@ -133,7 +131,7 @@ export class EventManager {
         console.error('Unknown tool selected');
         break;
     }
-  };
+  }
 
   getIntersectsWithName(name: string) {
     this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -145,10 +143,9 @@ export class EventManager {
     this.mouse.x = (event.clientX / this.renderer.domElement.clientWidth) * 2 - 1;
     this.mouse.y = -(event.clientY / this.renderer.domElement.clientHeight) * 2 + 1;
 
-    const intersects = this.getIntersectsWithName('FillMesh')
+    const intersects = this.getIntersectsWithName('FillMesh');
     if (intersects.length > 0) {
       const hoveredObject = intersects[0].object;
-
       const tile = hoveredObject.userData.tile as Tile || hoveredObject.parent?.userData.tile as Tile;
       if (tile) {
         return tile || null;
@@ -157,12 +154,18 @@ export class EventManager {
     return null;
   }
 
-  flashTile = () => {
+  selectTile = (color: number) => {
+    if (this.previousHoveredTile && this.previousHoveredTile !== this.hoveredTile) {
+      // Сбросить цвет предыдущего тайла, если он отличается от текущего
+      this.previousHoveredTile.resetSelection(); // Заменить на оригинальный цвет тайла
+    }
+
     if (this.hoveredTile) {
       const tile = this.hoveredTile;
-      tile.changeTileColor(0x0000FF);
-      tile.fadeOutTile();  // Подсвечиваем тайл
+      tile.toSelect(color); // Устанавливаем синий цвет для выделенного тайла
     }
-  };
 
+    // Обновляем предыдущий выделенный тайл
+    this.previousHoveredTile = this.hoveredTile;
+  };
 }

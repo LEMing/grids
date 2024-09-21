@@ -33,11 +33,11 @@ const useGame = (
     if (!eventManager) return;
 
     const throttledMouseMove = throttle((event: MouseEvent) => {
-      eventManager.onMouseMove(event);
+      eventManager.onMouseMove(event, selectedTool);
     }, 1000 / 60);
 
     throttledMouseMove(event);
-  }, [eventManager]);
+  }, [eventManager, selectedTool]);
 
   const onClick = useCallback(async (event: MouseEvent) => {
     if (!eventManager) return;
