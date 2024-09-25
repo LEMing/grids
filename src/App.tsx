@@ -42,8 +42,10 @@ const App: React.FC = () => {
   const options: SimpleViewerOptions = useMemo(() => {
     return {
       ...defaultOptions,
-      envMapUrl: '',
-      staticScene: false,
+      usePathTracing: true,
+      maxSamplesPathTracing: 100,
+      staticScene: true,
+      envMapUrl: 'https://cdn.polyhaven.com/asset_img/primary/autumn_field.png?height=720',
       backgroundColor: '#000000',
       camera: {
         ...defaultOptions.camera,

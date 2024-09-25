@@ -57,60 +57,56 @@ const createConcreteTexture = () => {
 
 const createWall = async (): Promise<Object3D> => {
   const SIZE = 2;
-
+  const COLOR = '#555555';
   // Создание шестиугольной формы
+  // Create a hexagonal shape
   const hexShape = new THREE.Shape();
+  const size = SIZE - 0.25; // Tile size considering the borders
+  const angleStep = (Math.PI * 2) / 6; // Six sides
   for (let i = 0; i < 6; i++) {
-    const angle = (i / 6) * Math.PI * 2;
-    const x = Math.cos(angle) * SIZE;
-    const z = Math.sin(angle) * SIZE;
+    const x = size * Math.cos(i * angleStep);
+    const y = size * Math.sin(i * angleStep);
     if (i === 0) {
-      hexShape.moveTo(x, z);
+      hexShape.moveTo(x, y);
     } else {
-      hexShape.lineTo(x, z);
+      hexShape.lineTo(x, y);
     }
   }
-  hexShape.closePath();
+  hexShape.closePath(); // Close the hexagon contour
 
+  // Extrusion parameters to create tile volume
   const extrudeSettings = {
-    depth: -1,
-    bevelEnabled: false,
-    // @ts-ignore
-    UVGenerator: THREE.ExtrudeGeometry.WorldUVGenerator
+    depth: 1, // Tile thickness
+    bevelEnabled: true,   // Enable beveling (chamfer)
+    bevelSize: 0.125,       // Bevel size
+    bevelThickness: 0.125, // Bevel thickness
+    bevelSegments: 6,     // Number of segments for smoothing the edge
   };
 
-  const prismGeometry = new THREE.ExtrudeGeometry(hexShape, extrudeSettings);
+  // Create the extrusion
+  const geometry = new THREE.ExtrudeGeometry(hexShape, extrudeSettings);
+  const edges = new THREE.EdgesGeometry(geometry);
+  const edgeMaterial = new THREE.LineBasicMaterial({ color: COLOR });
 
-  // Получение текстуры бетона
-  const concreteTexture = createConcreteTexture();
-
-  // Применение текстуры к материалу
-  const fillMaterial = new THREE.MeshStandardMaterial({
-    map: concreteTexture,
-    normalMap: concreteTexture,
-    side: THREE.DoubleSide,
-    roughness: 0.9,
-    metalness: 0.0
+  // Create the tile material
+  const planeMaterial = new THREE.MeshStandardMaterial({
+    color: COLOR,
+    metalness: 0.3,
+    roughness: 0.1,
   });
 
-  // Создание меша призмы
-  const prismMesh = new THREE.Mesh(prismGeometry, fillMaterial);
+  // Create the hexagonal tile and its edge lines
+  const hexMesh = new THREE.Mesh(geometry, planeMaterial);
+  // const edgeLines = new THREE.LineSegments(edges, edgeMaterial);
+  hexMesh.rotation.z = Math.PI / 2; // Tile lies on the XY plane
 
-  // Создание геометрии ребер
-  const edgesGeometry = new THREE.EdgesGeometry(prismGeometry);
-
-  // Создание материала для линий
-  const lineMaterial = new THREE.LineBasicMaterial({ color: 0x555555 }); // Чёрный цвет
-
-  // Создание линий из геометрии ребер и материала
-  const wireframe = new THREE.LineSegments(edgesGeometry, lineMaterial);
-
-  // Создание группы для объединения меша и линий
+  hexMesh.receiveShadow = true;
+  // Group to combine the tile and edges
   const group = new THREE.Group();
-  group.add(prismMesh);
-  group.add(wireframe);
-  group.traverse((child) => child.castShadow = true);
-  group.traverse((child) => child.receiveShadow = true);
+  group.rotateZ(-Math.PI / 2);
+  group.add(hexMesh);
+
+
   return group;
 };
 

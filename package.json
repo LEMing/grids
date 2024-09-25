@@ -16,7 +16,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "three": "^0.168.0",
-    "threedviewer": "/Users/Alex/Documents/GitHub/ThreeDViewer"
+    "threedviewer": "0.9.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
