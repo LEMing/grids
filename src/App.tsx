@@ -43,9 +43,9 @@ const App: React.FC = () => {
     return {
       ...defaultOptions,
       usePathTracing: true,
-      maxSamplesPathTracing: 100,
+      maxSamplesPathTracing: 300,
       staticScene: true,
-      envMapUrl: 'https://cdn.polyhaven.com/asset_img/primary/autumn_field.png?height=720',
+      envMapUrl: 'https://cdn.polyhaven.com/asset_img/primary/autumn_field.png?height=720', //
       backgroundColor: '#000000',
       camera: {
         ...defaultOptions.camera,
@@ -79,25 +79,26 @@ const App: React.FC = () => {
         directionalLight: {
           color: '#ffffff',
           intensity: Math.PI,
-          position: new THREE.Vector3(20, 20, 10),
-          castShadow: false,
+          position: new THREE.Vector3(6, 6, 6),
+          castShadow: true,
           shadow: {
             mapSize: {
-              width: 4096 * 2,
-              height: 4096 * 2,
+              width: 4096,
+              height: 4096,
             },
             camera: {
-              near: 0.1,
-              far: 100,  // Уменьшаем диапазон камеры теней
-              left: -50,  // Сужаем левую и правую границы
-              right: 50,
-              top: 50,  // Сужаем верхнюю и нижнюю границы
-              bottom: -50,
+              near: 0.5,
+              far: 50,
+              left: -10,
+              right: 10,
+              top: 10,
+              bottom: -10,
             },
-            bias: -0.005,  // Уменьшаем bias для более точного расчёта теней
-            radius: 1,  // Увеличиваем радиус для более мягких теней
+            bias: -0.0001,
+            radius: 1,
           },
-        }      },
+        },
+      },
       threeBaseRefs: {
         scene: sceneRef,
         camera: cameraRef,
